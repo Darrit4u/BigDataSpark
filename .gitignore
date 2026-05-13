@@ -3,6 +3,7 @@
 # custom
 pgdata/
 clickhouse-data/
+jobs/jdbs/*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

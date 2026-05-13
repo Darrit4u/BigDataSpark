@@ -30,7 +30,7 @@
       - "8888:8888"
       - "4040:4040"
     volumes:
-      - ./notebooks:/home/jovyan/work
+      - ./jobs:/home/jovyan/work
 
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
@@ -44,10 +44,13 @@
       - "8123:8123"
       - "9000:9000"
     volumes:
-      - ./clickhouse-data:/var/lib/clickhouse
+      - clickhouse_data:/var/lib/clickhouse
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8123/ping | grep -q Ok." ]
       interval: 30s
       timeout: 10s
       retries: 5
     restart: unless-stopped
+
+volumes:
+  clickhouse_data:
