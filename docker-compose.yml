@@ -22,10 +22,13 @@
   spark:
     image: jupyter/pyspark-notebook:latest
     container_name: spark
+    hostname: spark
     environment:
       SPARK_HOME: /usr/local/spark
       PYTHONPATH: /usr/local/spark/python:/usr/local/spark/python/lib/py4j-0.10.9.7-src.zip:/usr/local/spark/python/lib/pyspark.zip
       PYSPARK_PYTHON: /opt/conda/bin/python
+      SPARK_LOCAL_HOSTNAME: spark
+      SPARK_LOCAL_IP: 127.0.0.1
     ports:
       - "8888:8888"
       - "4040:4040"
@@ -52,5 +55,26 @@
       retries: 5
     restart: unless-stopped
 
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    environment:
+      CASSANDRA_CLUSTER_NAME: lab2-cluster
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_RACK: rack1
+      MAX_HEAP_SIZE: 512M
+      HEAP_NEWSIZE: 128M
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES' || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
 volumes:
   clickhouse_data:
+  cassandra_data:

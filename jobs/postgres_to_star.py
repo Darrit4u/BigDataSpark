@@ -7,7 +7,6 @@ from common.spark_job import SparkJob, env
 
 
 TRUNCATE_SQL = [
-    "ALTER TABLE fact_sales DROP CONSTRAINT IF EXISTS fact_sales_source_sale_id_key;",
     "TRUNCATE TABLE fact_sales, dim_customer, dim_seller, dim_product, dim_store, dim_supplier, dim_date RESTART IDENTITY CASCADE;",
 ]
 

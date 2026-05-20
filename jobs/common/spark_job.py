@@ -14,10 +14,20 @@ class SparkJob:
     app_name: str
     jdbc_jar_path: str | None = None
     jdbc_jars: list[str] | None = None
+    spark_packages: list[str] | None = None
     log_level: str = "ERROR"
 
     def start(self) -> SparkSession:
         builder = SparkSession.builder.appName(self.app_name)
+
+        driver_host = env("SPARK_DRIVER_HOST", "127.0.0.1")
+        driver_bind_address = env("SPARK_DRIVER_BIND_ADDRESS", "0.0.0.0")
+        local_ip = env("SPARK_LOCAL_IP", "127.0.0.1")
+        builder = (
+            builder.config("spark.driver.host", driver_host)
+            .config("spark.driver.bindAddress", driver_bind_address)
+            .config("spark.local.ip", local_ip)
+        )
 
         jar_candidates: list[str] = []
         if self.jdbc_jar_path:
@@ -32,6 +42,10 @@ class SparkJob:
                 .config("spark.driver.extraClassPath", os.pathsep.join(jar_list))
                 .config("spark.executor.extraClassPath", os.pathsep.join(jar_list))
             )
+
+        package_list = list(dict.fromkeys(p for p in (self.spark_packages or []) if p))
+        if package_list:
+            builder = builder.config("spark.jars.packages", ",".join(package_list))
 
         spark = builder.getOrCreate()
         spark.sparkContext.setLogLevel(self.log_level)
